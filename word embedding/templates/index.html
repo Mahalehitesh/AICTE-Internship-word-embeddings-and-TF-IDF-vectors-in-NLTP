@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NLP Explorer</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <style>
+    body { background: #f1f5f9; color: #343a40; }
+    .card {
+      border: none;
+      border-radius: .75rem;
+      box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+      margin-bottom: 1.5rem;
+    }
+    pre {
+      background: #212529;
+      color: #f8f9fa;
+      border-radius: .5rem;
+      padding: 1rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container mt-4">
+
+    <!-- Input Card -->
+    <div class="card">
+      <div class="card-body">
+        {% if error %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        <form method="POST">
+          <div class="mb-3">
+            <label for="input_text" class="form-label">Enter Text (one sentence per line)</label>
+            <textarea
+              id="input_text"
+              name="input_text"
+              class="form-control"
+              rows="5"
+              placeholder="I love programming in Python.
+Python is great for data science.
+Natural Language Processing is fun."
+            >{{ request.form.input_text or '' }}</textarea>
+          </div>
+          <div class="mb-3">
+            <label for="word" class="form-label">Word for Word2Vec</label>
+            <input
+              id="word"
+              name="word"
+              type="text"
+              class="form-control"
+              placeholder="e.g. python"
+              value="{{ request.form.word or '' }}"
+            >
+          </div>
+          <button type="submit" class="btn btn-primary">Process</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- TF-IDF Results -->
+    {% if tfidf_result %}
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">TF-IDF Results</h5>
+          <p class="mb-1"><strong>Vocabulary:</strong></p>
+          <pre>{{ tfidf_result.features }}</pre>
+          <p class="mb-1"><strong>TF-IDF Matrix:</strong></p>
+          <pre>{{ tfidf_result.matrix }}</pre>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Word2Vec Results -->
+    {% if w2v_result %}
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Word2Vec Results (GloVe-100)</h5>
+          <p class="mb-1"><strong>Vector for '{{ request.form.word }}' (first 10 dims):</strong></p>
+          <pre>{{ w2v_result.vector[:10] }} … ({{ w2v_result.vector|length }}D)</pre>
+          <p class="mb-1"><strong>Top-5 Similar Words:</strong></p>
+          <pre>{{ w2v_result.similar }}</pre>
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+  ></script>
+</body>
+</html>
